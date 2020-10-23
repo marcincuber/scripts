@@ -1,3 +1,4 @@
+#!/bin/bash
 #####
 # Description: check if scanned image returned any CRITIAL findings
 # Execute: ./ecr-scan-script.sh REPO_NAME IMAGE_TAG
