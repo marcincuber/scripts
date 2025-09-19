@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Converts all ECR repos whose name starts with "github/" AND are currently MUTABLE to IMMUTABLE.
+# Converts all ECR repos whose name starts with prefixes such as "github/" AND are currently MUTABLE to IMMUTABLE.
 # Works across all regions by default. Requires: awscli v2 with ECR permissions.
 #
 # Usage:
@@ -13,7 +13,7 @@ set -euo pipefail
 #   Set DRY_RUN=false to actually apply changes. Default is DRY_RUN=true (preview only).
 #
 # Full Example:
-#   DRY_RUN=true REGIONS="eu-west-2" AWS_PROFILE=aws-eng-platform-dev ./ecr-make-immutable-with-prefix.sh
+#   DRY_RUN=true REGIONS="eu-west-2" AWS_PROFILE=aws-eng-platform-dev ./ecr-make-immutable-with-prefix.sh github/ quay/
 
 DRY_RUN="${DRY_RUN:-true}"
 PROFILE_OPT="${AWS_PROFILE:+--profile $AWS_PROFILE}"
