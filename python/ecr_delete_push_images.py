@@ -6,6 +6,9 @@
 ### dry-run
 # python ecr_delete_push_images.py --prefix github/ --account-id 123456789012 --region us-east-1 --dry-run --profile myprofile
 #
+### dry-run with logging
+# python ecr_delete_push_images.py --prefix github/ --account-id 123456789012 --region us-east-1 --dry-run --profile myprofile --verbose --log-file script.log
+#
 ### run for real
 # python ecr_delete_push_images.py --prefix github/ --account-id 123456789012 --region us-east-1 --profile myprofile
 #######
