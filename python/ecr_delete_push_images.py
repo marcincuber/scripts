@@ -4,13 +4,13 @@
 # source ./venv/bin/activate
 # pip install boto3 botocore
 ### dry-run
-# python ecr_delete_push_images.py --prefix github/ --account-id 123456789012 --region us-east-1 --dry-run --profile myprofile
+# python ecr_delete_push_images.py --platform linux/amd64 --prefix github/ --account-id 123456789012 --region us-east-1 --dry-run --profile myprofile
 #
 ### dry-run with logging
-# python ecr_delete_push_images.py --prefix github/ --account-id 123456789012 --region us-east-1 --dry-run --profile myprofile --verbose --log-file script.log
+# python ecr_delete_push_images.py --platform linux/amd64 --prefix github/ --account-id 123456789012 --region us-east-1 --dry-run --profile myprofile --verbose --log-file script.log
 #
 ### run for real
-# python ecr_delete_push_images.py --prefix github/ --account-id 123456789012 --region us-east-1 --profile myprofile
+# python ecr_delete_push_images.py --platform linux/amd64 --prefix github/ --account-id 123456789012 --region us-east-1 --profile myprofile
 #######
 
 #!/usr/bin/env python3
@@ -110,7 +110,7 @@ def docker_login(account_id: str, region: str, profile: str | None) -> None:
 
 
 def process_tag(
-    ecr, repo_name: str, tag: str, account_id: str, region: str, dry_run: bool
+    ecr, repo_name: str, tag: str, account_id: str, region: str, platform: str, dry_run: bool
 ) -> Tuple[bool, str]:
     """Process a single tag: pull -> delete -> push. Returns (success, message)."""
     image_uri = f"{account_id}.dkr.ecr.{region}.amazonaws.com/{repo_name}:{tag}"
@@ -120,7 +120,7 @@ def process_tag(
 
     try:
         logging.info("Pulling image: %s", image_uri)
-        subprocess.run(["docker", "pull", image_uri], check=True)
+        subprocess.run(["docker", "pull", "--platform", platform, image_uri], check=True)
         logging.info("Pulled image: %s", image_uri)
     except subprocess.CalledProcessError as e:
         logging.error("Failed to pull %s: %s", image_uri, e)
@@ -138,7 +138,7 @@ def process_tag(
 
     try:
         logging.info("Pushing image back to ECR: %s", image_uri)
-        subprocess.run(["docker", "push", image_uri], check=True)
+        subprocess.run(["docker", "push", "--platform", platform, image_uri], check=True)
         logging.info("Pushed image back: %s", image_uri)
     except subprocess.CalledProcessError as e:
         logging.error("Failed to push %s: %s", image_uri, e)
@@ -158,6 +158,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Preview actions without pulling/deleting/pushing")
     parser.add_argument("--log-file", help="Path to write logs (optional)")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose (DEBUG) logging")
+    parser.add_argument("--platform", required=True, help="Specify image platform arch i.e. linux/amd64")
     args = parser.parse_args()
 
     setup_logging(args.verbose, args.log_file)
@@ -189,7 +190,7 @@ def main():
 
         for tag in tags:
             total_tags += 1
-            ok, reason = process_tag(ecr, repo, tag, args.account_id, args.region, args.dry_run)
+            ok, reason = process_tag(ecr, repo, tag, args.account_id, args.region, args.platform, args.dry_run)
             if ok:
                 successes += 1
             else:
