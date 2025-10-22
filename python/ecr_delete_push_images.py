@@ -158,7 +158,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Preview actions without pulling/deleting/pushing")
     parser.add_argument("--log-file", help="Path to write logs (optional)")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose (DEBUG) logging")
-    parser.add_argument("--platform", required=True, help="Specify image platform arch i.e. linux/amd64")
+    parser.add_argument("--platform", default='linux/amd64', help="Specify image platform arch i.e. linux/amd64")
     args = parser.parse_args()
 
     setup_logging(args.verbose, args.log_file)
